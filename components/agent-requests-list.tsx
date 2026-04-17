@@ -14,31 +14,12 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Bot, ChevronRight, Clock, User, MapPin, Database, Shield, AlertTriangle, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
-
-interface AgentRequest {
-  id: string
-  name: string
-  email: string
-  department: string
-  businessUnit: string
-  role: string
-  agentDescription: string
-  journey: string
-  processDescription: string
-  isRegulated: string
-  tolerance: string
-  existingProcess: string
-  existingProcessDetails: string
-  dataSources: string[]
-  processOwner: string
-  processOwnerEmail: string
-  benefit: string
-  status: "pending" | "review" | "approved" | "building"
-  createdAt: Date
-}
+import { Spinner } from "@/components/ui/spinner"
+import type { AgentRequest } from "@/lib/types"
 
 interface AgentRequestsListProps {
   requests: AgentRequest[]
+  isLoading?: boolean
 }
 
 const statusConfig = {
@@ -55,7 +36,7 @@ const toleranceLabels: Record<string, string> = {
   high: "High Tolerance",
 }
 
-export function AgentRequestsList({ requests }: AgentRequestsListProps) {
+export function AgentRequestsList({ requests, isLoading }: AgentRequestsListProps) {
   const [selectedRequest, setSelectedRequest] = useState<AgentRequest | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
 
@@ -69,6 +50,17 @@ export function AgentRequestsList({ requests }: AgentRequestsListProps) {
       request.businessUnit.toLowerCase().includes(query)
     )
   })
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <Spinner className="w-8 h-8 mx-auto mb-4 text-primary" />
+          <p className="text-sm text-muted-foreground">Loading requests...</p>
+        </CardContent>
+      </Card>
+    )
+  }
 
   if (requests.length === 0) {
     return (
@@ -156,7 +148,7 @@ export function AgentRequestsList({ requests }: AgentRequestsListProps) {
                           </div>
                           <div className="flex items-center gap-1 text-muted-foreground">
                             <Clock className="w-3.5 h-3.5" />
-                            <span>{request.createdAt.toLocaleDateString()}</span>
+                            <span>{new Date(request.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
 

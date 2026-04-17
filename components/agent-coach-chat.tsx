@@ -8,26 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Bot, Send, User, Loader2, Check } from "lucide-react"
+import type { AgentRequest } from "@/lib/types"
 
-interface AgentRequestData {
-  complete: boolean
-  name: string
-  email: string
-  department: string
-  businessUnit: string
-  role: string
-  agentDescription: string
-  journey: string
-  processDescription: string
-  isRegulated: string
-  tolerance: string
-  existingProcess: string
-  existingProcessDetails: string
-  dataSources: string[]
-  processOwner: string
-  processOwnerEmail: string
-  benefit: string
-}
+type AgentRequestData = Omit<AgentRequest, "id" | "status" | "createdAt"> & { complete: boolean }
 
 interface AgentCoachChatProps {
   onRequestComplete: (data: AgentRequestData) => void

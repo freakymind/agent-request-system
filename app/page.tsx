@@ -1,53 +1,57 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AgentCoachChat } from "@/components/agent-coach-chat"
 import { AgentRequestsList } from "@/components/agent-requests-list"
-import { Bot, MessageSquare, List } from "lucide-react"
+import { Bot, MessageSquare, List, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-interface AgentRequest {
-  id: string
-  name: string
-  email: string
-  department: string
-  businessUnit: string
-  role: string
-  agentDescription: string
-  journey: string
-  processDescription: string
-  isRegulated: string
-  tolerance: string
-  existingProcess: string
-  existingProcessDetails: string
-  dataSources: string[]
-  processOwner: string
-  processOwnerEmail: string
-  benefit: string
-  status: "pending" | "review" | "approved" | "building"
-  createdAt: Date
-}
+import type { AgentRequest } from "@/lib/types"
 
 export default function Home() {
   const [requests, setRequests] = useState<AgentRequest[]>([])
   const [activeTab, setActiveTab] = useState("chat")
   const [chatKey, setChatKey] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const handleRequestComplete = (data: Omit<AgentRequest, "id" | "status" | "createdAt">) => {
-    const newRequest: AgentRequest = {
-      ...data,
-      id: `AGT-${Date.now().toString().slice(-8)}`,
-      status: "pending",
-      createdAt: new Date(),
+  // Load requests on mount
+  useEffect(() => {
+    async function loadRequests() {
+      try {
+        const res = await fetch("/api/requests")
+        const data = await res.json()
+        setRequests(data.requests || [])
+      } catch (error) {
+        console.error("Failed to load requests:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-    setRequests((prev) => [newRequest, ...prev])
-    setActiveTab("requests")
+    loadRequests()
+  }, [])
+
+  const handleRequestComplete = async (data: Omit<AgentRequest, "id" | "status" | "createdAt">) => {
+    try {
+      const res = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      const newRequest = await res.json()
+      setRequests((prev) => [newRequest, ...prev])
+      setActiveTab("requests")
+    } catch (error) {
+      console.error("Failed to save request:", error)
+    }
   }
 
   const startNewChat = () => {
     setChatKey((prev) => prev + 1)
     setActiveTab("chat")
+  }
+
+  const handleExport = () => {
+    window.open("/api/requests/export", "_blank")
   }
 
   return (
@@ -83,11 +87,19 @@ export default function Home() {
               </TabsTrigger>
             </TabsList>
 
-            {activeTab === "requests" && requests.length > 0 && (
-              <Button onClick={startNewChat} variant="outline" size="sm">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                New Request
-              </Button>
+            {activeTab === "requests" && (
+              <div className="flex items-center gap-2">
+                {requests.length > 0 && (
+                  <Button onClick={handleExport} variant="outline" size="sm">
+                    <Download className="w-4 h-4 mr-2" />
+                    Export JSON
+                  </Button>
+                )}
+                <Button onClick={startNewChat} variant="outline" size="sm">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  New Request
+                </Button>
+              </div>
             )}
           </div>
 
@@ -96,7 +108,7 @@ export default function Home() {
           </TabsContent>
 
           <TabsContent value="requests" className="mt-0">
-            <AgentRequestsList requests={requests} />
+            <AgentRequestsList requests={requests} isLoading={isLoading} />
           </TabsContent>
         </Tabs>
       </div>
