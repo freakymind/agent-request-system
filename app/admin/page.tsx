@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { 
@@ -320,6 +320,9 @@ export default function AdminPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Update Request Status</DialogTitle>
+            <DialogDescription>
+              Change the status and add a comment for this agent request.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
@@ -383,6 +386,9 @@ export default function AdminPage() {
               <span>Request Details</span>
               <code className="text-sm bg-muted px-2 py-1 rounded font-normal">{selectedRequest?.id}</code>
             </DialogTitle>
+            <DialogDescription>
+              Complete information about this agent request including status history.
+            </DialogDescription>
           </DialogHeader>
           {selectedRequest && (
             <div className="space-y-6 py-4">

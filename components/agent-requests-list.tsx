@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -178,6 +179,9 @@ export function AgentRequestsList({ requests, isLoading }: AgentRequestsListProp
                       <Bot className="w-5 h-5" />
                       Agent Request Details
                     </DialogTitle>
+                    <DialogDescription>
+                      View complete details and status history for this agent request.
+                    </DialogDescription>
                   </DialogHeader>
 
                   <div className="space-y-6 py-4">
