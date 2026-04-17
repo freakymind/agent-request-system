@@ -22,11 +22,16 @@ interface AgentRequestsListProps {
   isLoading?: boolean
 }
 
-const statusConfig = {
+import type { RequestStatus } from "@/lib/types"
+import { MessageSquare } from "lucide-react"
+
+const statusConfig: Record<RequestStatus, { label: string; color: string }> = {
   pending: { label: "Pending Review", color: "bg-amber-100 text-amber-800 border-amber-200" },
   review: { label: "In Review", color: "bg-blue-100 text-blue-800 border-blue-200" },
   approved: { label: "Approved", color: "bg-green-100 text-green-800 border-green-200" },
   building: { label: "Building", color: "bg-purple-100 text-purple-800 border-purple-200" },
+  completed: { label: "Completed", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+  rejected: { label: "Rejected", color: "bg-red-100 text-red-800 border-red-200" },
 }
 
 const toleranceLabels: Record<string, string> = {
@@ -304,6 +309,36 @@ export function AgentRequestsList({ requests, isLoading }: AgentRequestsListProp
                         </div>
                       </div>
                     </div>
+
+                    {/* Status History */}
+                    {request.statusHistory && request.statusHistory.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-foreground flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" />
+                          Status Updates
+                        </h4>
+                        <div className="space-y-3">
+                          {request.statusHistory.map((update, index) => (
+                            <div key={index} className="bg-muted/50 rounded-lg p-3 text-sm">
+                              <div className="flex items-center justify-between mb-2">
+                                <Badge variant="outline" className={statusConfig[update.status].color}>
+                                  {statusConfig[update.status].label}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(update.updatedAt).toLocaleString()}
+                                </span>
+                              </div>
+                              {update.comment && (
+                                <p className="text-muted-foreground">{update.comment}</p>
+                              )}
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Updated by: {update.updatedBy}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </DialogContent>
               </Dialog>

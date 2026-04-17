@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { AgentCoachChat } from "@/components/agent-coach-chat"
 import { AgentRequestsList } from "@/components/agent-requests-list"
-import { Bot, MessageSquare, List, Download } from "lucide-react"
+import { Bot, MessageSquare, List, Download, Shield } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { AgentRequest } from "@/lib/types"
@@ -58,7 +59,14 @@ export default function Home() {
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 relative">
+          <Link
+            href="/admin"
+            className="absolute right-0 top-0 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Shield className="w-4 h-4" />
+            Admin
+          </Link>
           <div className="inline-flex items-center gap-2 mb-4">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <Bot className="w-6 h-6 text-primary-foreground" />

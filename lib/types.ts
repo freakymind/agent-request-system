@@ -1,3 +1,12 @@
+export type RequestStatus = "pending" | "review" | "approved" | "building" | "completed" | "rejected"
+
+export interface StatusUpdate {
+  status: RequestStatus
+  comment: string
+  updatedBy: string
+  updatedAt: string
+}
+
 export interface AgentRequest {
   id: string
   name: string
@@ -16,7 +25,8 @@ export interface AgentRequest {
   processOwner: string
   processOwnerEmail: string
   benefit: string
-  status: "pending" | "review" | "approved" | "building"
+  status: RequestStatus
+  statusHistory: StatusUpdate[]
   createdAt: string // ISO string for JSON serialization
 }
 
