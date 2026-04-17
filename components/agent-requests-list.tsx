@@ -12,7 +12,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Bot, ChevronRight, Clock, User, MapPin, Database, Shield, AlertTriangle } from "lucide-react"
+import { Bot, ChevronRight, Clock, User, MapPin, Database, Shield, AlertTriangle, Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 interface AgentRequest {
   id: string
@@ -56,6 +57,18 @@ const toleranceLabels: Record<string, string> = {
 
 export function AgentRequestsList({ requests }: AgentRequestsListProps) {
   const [selectedRequest, setSelectedRequest] = useState<AgentRequest | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const filteredRequests = requests.filter((request) => {
+    const query = searchQuery.toLowerCase()
+    return (
+      request.agentDescription.toLowerCase().includes(query) ||
+      request.name.toLowerCase().includes(query) ||
+      request.journey.toLowerCase().includes(query) ||
+      request.department.toLowerCase().includes(query) ||
+      request.businessUnit.toLowerCase().includes(query)
+    )
+  })
 
   if (requests.length === 0) {
     return (
@@ -75,16 +88,31 @@ export function AgentRequestsList({ requests }: AgentRequestsListProps) {
 
   return (
     <Card>
-      <CardHeader className="border-b border-border">
+      <CardHeader className="border-b border-border space-y-4">
         <CardTitle className="flex items-center gap-2">
           <Bot className="w-5 h-5" />
           Agent Requests ({requests.length})
         </CardTitle>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by agent name, requester, journey, department..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <ScrollArea className="h-[500px]">
           <div className="divide-y divide-border">
-            {requests.map((request) => (
+            {filteredRequests.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                <Bot className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p>No requests found matching "{searchQuery}"</p>
+              </div>
+            ) : (
+              filteredRequests.map((request) => (
               <Dialog key={request.id}>
                 <DialogTrigger asChild>
                   <button
@@ -93,8 +121,9 @@ export function AgentRequestsList({ requests }: AgentRequestsListProps) {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-foreground truncate">
+                        {/* Agent Name and Status */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-semibold text-foreground text-base truncate">
                             {request.agentDescription.slice(0, 50)}
                             {request.agentDescription.length > 50 ? "..." : ""}
                           </span>
@@ -105,25 +134,43 @@ export function AgentRequestsList({ requests }: AgentRequestsListProps) {
                             {statusConfig[request.status].label}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            {request.name}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {request.journey}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {request.createdAt.toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+
+                        {/* Benefit Summary */}
+                        <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
                           {request.benefit}
                         </p>
+
+                        {/* Details Grid */}
+                        <div className="grid grid-cols-2 gap-3 text-xs mb-3">
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <User className="w-3.5 h-3.5" />
+                            <span>{request.name}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <MapPin className="w-3.5 h-3.5" />
+                            <span>{request.journey}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Database className="w-3.5 h-3.5" />
+                            <span>{request.department}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{request.createdAt.toLocaleDateString()}</span>
+                          </div>
+                        </div>
+
+                        {/* Business Unit and Tolerance */}
+                        <div className="flex items-center gap-2 text-xs">
+                          <Badge variant="secondary" className="bg-primary/10 text-primary">
+                            {request.businessUnit}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
+                            {toleranceLabels[request.tolerance] || request.tolerance}
+                          </Badge>
+                        </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                      <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-1" />
                     </div>
                   </button>
                 </DialogTrigger>
@@ -268,7 +315,8 @@ export function AgentRequestsList({ requests }: AgentRequestsListProps) {
                   </div>
                 </DialogContent>
               </Dialog>
-            ))}
+              ))
+            )}
           </div>
         </ScrollArea>
       </CardContent>
