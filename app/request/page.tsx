@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { AgentCoachChat } from "@/components/agent-coach-chat"
 import { AgentRequestsList } from "@/components/agent-requests-list"
@@ -9,8 +9,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { AgentRequest } from "@/lib/types"
+import { Spinner } from "@/components/ui/spinner"
 
-export default function RequestPage() {
+function RequestPageContent() {
   const searchParams = useSearchParams()
   const initialTab = searchParams.get("tab") || "chat"
   
@@ -135,5 +136,17 @@ export default function RequestPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function RequestPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner className="w-8 h-8 text-primary" />
+      </div>
+    }>
+      <RequestPageContent />
+    </Suspense>
   )
 }
